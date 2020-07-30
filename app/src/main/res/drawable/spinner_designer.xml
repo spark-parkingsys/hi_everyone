@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item>
+
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <corners
+                        android:bottomLeftRadius="6dp"
+                        android:bottomRightRadius="6dp"
+                        android:topLeftRadius="6dp"
+                        android:topRightRadius="6dp" />
+                    <solid android:color="#ffffff" /> <!-- 배경 -->
+                    <stroke android:width="2dip" android:color="#d0d3d8" /> <!-- 외각선 -->
+                </shape>
+            </item>
+            <!-- 회살표를 넣기위해-->
+            <item android:right="10dp">
+                <bitmap android:src="@drawable/filter_image"  android:gravity="right" />
+            </item>
+        </layer-list>
+    </item>
+</selector>
