@@ -1,9 +1,15 @@
 package com.example.s_park;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +36,7 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -36,6 +44,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import static android.app.Notification.DEFAULT_VIBRATE;
 
 //visibility로 필터링 재설정
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -71,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         filterSpinner = findViewById(R.id.filterSpinner);
         InitializeLayout();
         filterSpinner.setAdapter(adapter);
+
+        //푸시알림
+
+
 
         //필터 검색 커스텀
         filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -124,8 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     onMapReady(mMap);
                     break;
                 case R.id. refreshButton:
-                    numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
-                    onMapReady(mMap);
                     break;
             }
         }
