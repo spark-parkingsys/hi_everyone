@@ -1,11 +1,15 @@
 package com.example.s_park;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +30,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 //visibility로 필터링 재설정
@@ -37,17 +46,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public TextView numOfpark;
     public TextView phoneOfpark;
     public TextView userOfpark;
+    public ImageView refreshButton;
+    public TextView refresh_txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
 
         numOfpark = findViewById(R.id.numOfpark);
         phoneOfpark = findViewById(R.id.phoneOfpark);
         userOfpark = findViewById(R.id.userOfpark);
+        refreshButton = findViewById(R.id.refreshButton);
+        refresh_txt = findViewById(R.id.refresh_txt);
+
+        refreshButton.setOnClickListener(onClickListener);
+        refresh_txt.setOnClickListener(onClickListener);
 
         //필터 스피너의 어댑터 설정
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item , filtering);
@@ -96,9 +113,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sampleList.add(new MarkerItem(37.51487, 126.92765, "PINK", "573-256-375", "010-DDDD-DDDD", "곽수인"));
         sampleList.add(new MarkerItem(37.51127, 126.94765, "RED", "846-584-221", "010-EEEE-EEEE", "김정현"));
 
-
-
     }
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()){
+                case R.id. refresh_txt:
+                    numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    onMapReady(mMap);
+                    break;
+                case R.id. refreshButton:
+                    numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    onMapReady(mMap);
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -152,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
 
         // 최대, 최소 줌 설정
-        mMap.setMinZoomPreference(11);
+        mMap.setMinZoomPreference(13);
         mMap.setMaxZoomPreference(20);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -290,4 +321,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //jsons 파일 읽어오기
+    public void testJson(){
+        //jsons 파일 읽어오기
+        AssetManager assetManager = getAssets();
+
+        try{
+            InputStream is = assetManager.open("jsons/test.json");
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader reader = new BufferedReader(isr);
+
+            StringBuffer buffer = new StringBuffer();
+            String line = reader.readLine();
+            while(line!=null){
+                buffer.append(line+"\n");
+                line = reader.readLine();
+            }
+            String jsonData = buffer.toString();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
