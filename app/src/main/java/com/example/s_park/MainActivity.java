@@ -2,6 +2,7 @@ package com.example.s_park;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public TextView userOfpark;
     public ImageView refreshButton;
     public TextView refresh_txt;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -75,6 +77,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         refreshButton.setOnClickListener(onClickListener);
         refresh_txt.setOnClickListener(onClickListener);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("잠시만 기다려주세요.");
+        progressDialog.setCancelable(true);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
         //필터 스피너의 어댑터 설정
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item , filtering);
@@ -134,10 +141,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id. refresh_txt:
+                    progressDialog.show();
                     numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
                     onMapReady(mMap);
+                    progressDialog.dismiss();
                     break;
                 case R.id. refreshButton:
+                    progressDialog.show();
+                    numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    onMapReady(mMap);
+                    progressDialog.dismiss();
                     break;
             }
         }
