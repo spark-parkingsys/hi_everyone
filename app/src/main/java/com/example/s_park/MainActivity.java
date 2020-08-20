@@ -1,21 +1,14 @@
 package com.example.s_park;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,20 +29,18 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.io.BufferedInputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-
-import static android.app.Notification.DEFAULT_VIBRATE;
 
 //visibility로 필터링 재설정
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     public ArrayList<MarkerItem> sampleList = new ArrayList<>();
+    public ArrayList<MarkerItem> stateList = new ArrayList<>();
     private GoogleMap mMap;
     Spinner filterSpinner;
     String [] filtering = {"ALL","GREEN","YELLOW","PINK","RED",};
@@ -59,12 +49,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public TextView userOfpark;
     public ImageView refreshButton;
     public TextView refresh_txt;
+    public TextView textView3;
+    public String TAG = "MainActivity";
+    String _protocol = "http://";
+    String _host = "27.96.131.40";
+    String _port = ":3300";
+    String _path = "/jsontest";
+    String _url = "" + _protocol + _host + _port + _path;
     ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        //mainthread 오류 해결 코드, 아마도 메인스레드와 분리시키는 코드인 듯
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
@@ -89,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         InitializeLayout();
         filterSpinner.setAdapter(adapter);
 
-        //푸시알림
 
-
+        textView3 = findViewById(R.id.textView3);
+        textView3.setOnClickListener(onClickListener);
 
         //필터 검색 커스텀
         filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -134,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sampleList.add(new MarkerItem(37.51487, 126.92765, "PINK", "573-256-375", "010-DDDD-DDDD", "곽수인"));
         sampleList.add(new MarkerItem(37.51127, 126.94765, "RED", "846-584-221", "010-EEEE-EEEE", "김정현"));
 
+        //정보를 받아옴
+        request();
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -198,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             markerOptions.position(position).snippet(markerItem.phoneOfpark);
             //마커 생성
             mMap.addMarker(markerOptions);
-
             //마커 클릭 이벤트 설정
         }
 
@@ -299,7 +302,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
     public void InitializeLayout(){
         //toolBar를 통해 App Bar 생성
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -336,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawLayout.addDrawerListener(actionBarDrawerToggle);
     }
 
+    //Drawer 뒤로가기
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layoutGov);
@@ -346,26 +349,91 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    //jsons 파일 읽어오기
-    public void testJson(){
-        //jsons 파일 읽어오기
-        AssetManager assetManager = getAssets();
+    private void request() {
+        // request 요청시 비동기 작업을 위해서 Thread 이용해서 통신 실행
+        new Thread(new Runnable() {
+            // json 으로 전달할 인자들
+            // 현재는 지정 문자를 정해두고 보내는 예시
+            // json 객체
+            String StateJson = null;
 
-        try{
-            InputStream is = assetManager.open("jsons/test.json");
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader reader = new BufferedReader(isr);
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "Json 전달 스레드 실행");
+                    URL url = new URL(_url);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-            StringBuffer buffer = new StringBuffer();
-            String line = reader.readLine();
-            while(line!=null){
-                buffer.append(line+"\n");
-                line = reader.readLine();
+                    // Restful API, Get 방식으로 전달
+                    // GET / POST / DELETE / PUT ..
+                    String methodType = "GET";
+                    con.setRequestMethod(methodType);
+
+                    // request 코드가 200이면, 응답이 정상적으로 호출됨을 의미
+                    int responseCode = con.getResponseCode();
+                    Log.d(TAG, "response code:" + responseCode);
+
+                    // 입력값을 수용하는 버퍼
+                    BufferedReader br = null;
+                    if (responseCode == 200) { // 정상 호출
+                        Log.d(TAG, "정상호출");
+                        //정상적으로 호출이 되면, 스트림으로부터 버퍼로 데이터를 읽어온다.
+                        br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    } else {
+                        // 에러 발생 ( 응답 코드가 200이 아닐 경우 )
+                        Log.d(TAG, "비정상호출");
+                    }
+                    // json파일을 출력
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+                    // 버퍼에 입력된 값들을 라인 단위로 읽어들임
+                    while ((inputLine = br.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    br.close();
+                    // 응답값을 String 형태로 json에 저장
+                    StateJson = response.toString();
+                    // json의 내용이 만약 null값이면 return시킴
+                    if (StateJson == null) {
+                        return;
+                    }
+
+                    //json 객체가 제대로 수신되었는지 StateJson에 저장된 String을 log출력
+                    Log.d("JSON TEST", "json => " + StateJson);
+
+                    //json 객체가 제대로 수신되었는지 log출력
+                    JSONObject jsonObject = new JSONObject(StateJson);
+                    JSONArray resultsArray = jsonObject.getJSONArray("results");
+
+                    Log.d("JSON TEST", "json => " + resultsArray);
+
+                    // json에 담겨있는 Object들을 Index를 이용해서 출력
+                    JSONObject jsonObject1 = resultsArray.getJSONObject(0);
+                    Log.d("JSON TEST", "json => " + jsonObject1.toString());
+
+                    // json에 담겨있는 Object들을 key값을 이용해서 출력
+                    JSONObject dataObject = (JSONObject) jsonObject1.get("id");
+                    Log.d("JSON TEST", "json => " + dataObject.toString());
+
+                    for(int i=0; resultsArray.getJSONObject(i).equals(resultsArray.length()); i++){
+                        JSONObject jsonObject_T = resultsArray.getJSONObject(i);
+                        //sampleList.add(new MarkerItem(37.52487, 126.98423, "GREEN", "123-456-789", "010-AAAA-AAAA", "박성진"));
+                        //{"lat": , "lon": , "state": , "numOfpark": , "phoneOfpark": , "userOfpark"}
+                        stateList.add(new MarkerItem(
+                                Double.parseDouble(jsonObject_T.get("lat").toString()),
+                                Double.parseDouble(jsonObject_T.get("lon").toString()),
+                                jsonObject_T.get("state").toString(),
+                                jsonObject_T.get("numOfpark").toString(),
+                                jsonObject_T.get("phoneOfpark").toString(),
+                                jsonObject_T.get("userOfpark").toString()));
+                    }
+
+
+                } catch (Exception e) {
+                    //error 발생시 error를 출력
+                    e.printStackTrace();
+                }
             }
-            String jsonData = buffer.toString();
-
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 }
