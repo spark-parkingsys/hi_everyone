@@ -35,8 +35,8 @@ public class SignUpActivity extends AppCompatActivity {
     String TAG = "SignUpActivity";
     String _protocol = "http://";
     String _host = "27.96.131.40";
-    String _port = ":3300";
-    String _path = "/jsontest";
+    String _port = ":3400";
+    String _path = "/api/signUp";
     String _url = "" + _protocol + _host + _port + _path;
 
     @Override
@@ -80,21 +80,6 @@ public class SignUpActivity extends AppCompatActivity {
         return false;
     }
 
-    //회원가입
-    public void confirmSignUp(){
-        String id = signUp_id.toString();
-        String password = signUp_password.toString();
-        String name = signUp_name.toString();
-        String phone = signUp_phone.toString();
-        if(!confirmID(id)) {
-            Toast.makeText(this, "중복된 아이디입니다.", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this, "사용가능한 아이디입니다.", Toast.LENGTH_SHORT).show();
-        }
-        if(password.length() < 6 || password.length() > 12){
-            Toast.makeText(this, "비밀번호 조건을 충족하지 않습니다.", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -122,13 +107,15 @@ public class SignUpActivity extends AppCompatActivity {
             public void run() {
                 try {
                     //회원가입 내용을 json에 put함
-                    SignUpJson.put("id", signUp_id);
-                    SignUpJson.put("pw", signUp_password);
-                    SignUpJson.put("name", signUp_name);
-                    SignUpJson.put("email", signUp_Email);
-                    SignUpJson.put("email_code", signUp_mail_check);
-                    SignUpJson.put("phone", signUp_phone);
-                    SignUpJson.put("phone_code", signUp_phone_check);
+                    SignUpJson.put("id", signUp_id.getText());
+                    SignUpJson.put("password", signUp_password.getText());
+                    SignUpJson.put("name", signUp_name.getText());
+                    SignUpJson.put("phone", signUp_phone.getText());
+                    SignUpJson.put("email", signUp_Email.getText());
+                    //SignUpJson.put("email_code", signUp_mail_check.getText());
+                    //SignUpJson.put("phone_code", signUp_phone_check.getText());
+
+
 
                     String jsonString = SignUpJson.toString(); //완성된 json 포맷
                     Log.d("json 내용 확인", jsonString);
@@ -146,7 +133,6 @@ public class SignUpActivity extends AppCompatActivity {
 
                                 con.setRequestMethod("GET");
                                 con.connect();
-                                Log.d(TAG, "response code:" + "http connection");
                                 int responseCode = con.getResponseCode();
 
                                 Log.d(TAG, "response code:" + responseCode);

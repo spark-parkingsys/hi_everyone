@@ -8,6 +8,19 @@ public class MarkerItem {
     String userOfpark;
     String phoneOfpark;
 
+    /*"latlng":{"lat":37.59301166,"lng":127.0892316},
+            "_id":"5f3d1ab6d65be674083a2493",
+            "oID":"2015920001",
+            "pID":"123126020010103",
+            "placeName":"면목본동4",
+            "addrName":"서울 중랑구 면목동 284",
+            "hasSensor":false,
+            "status":null,
+            "ownerID":null,
+            "createdAt":"2020-08-19T12:27:34.854Z",
+            "updatedAt":"2020-08-19T12:27:34.854Z",
+            "__v":0*/
+
 
     public MarkerItem(double lat, double lon, String state, String numOfpark, String phoneOfpark, String userOfpark){
         this.lat = lat;

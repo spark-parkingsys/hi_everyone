@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#eeeeee"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content">
+
+    <!-- 타이틀바 -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="53dp"
+            android:background="#FCA01F"
+            android:fontFamily="@font/nanumsquare_bold"
+            android:gravity="center"
+            android:text="Notice"
+            android:textColor="#fff"
+            android:textSize="20sp" />
+    </LinearLayout>
+    <!-- //end 타이틀바 -->
+
+    <!-- Notice -->
+    <LinearLayout
+        android:padding="24dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Spinner
+            android:id="@+id/modify_spinner"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/spinner_design2"
+            android:gravity="center"
+            android:paddingStart="5dp"
+            android:theme="@style/spinner_style1"/>
+
+        <TextView
+            android:id="@+id/txtText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:alpha="0.87"
+            android:fontFamily="@font/nanumsquare_light"
+            android:gravity="center"
+            android:text="수정하시겠습니까?"
+            android:textColor="#000"
+            android:textSize="15sp" />
+    </LinearLayout>
+    <!-- Notice -->
+
+    <View
+        android:background="#66bdbdbd"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <!-- 닫기 버튼 -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/yes_button"
+            android:layout_width="wrap_content"
+            android:layout_height="53dp"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:backgroundTint="#2B2B2B"
+            android:fontFamily="@font/nanumsquare_light"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="yes"
+            android:textColor="#1100FF"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/no_button"
+            android:layout_width="wrap_content"
+            android:layout_height="53dp"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:fontFamily="@font/nanumsquare_light"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="NO"
+            android:textColor="#FF0008"
+            android:textSize="14sp" />
+    </LinearLayout>
+    <!--// 닫기 버튼 -->
+</LinearLayout>
