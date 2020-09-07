@@ -38,7 +38,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -59,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public ArrayList<MarkerItem> stateList = new ArrayList<>();
     private GoogleMap mMap;
     Spinner filterSpinner;
-    String [] filtering = {"ALL","GREEN","YELLOW","PINK","RED"};
+    String [] filtering = {"ALL","GREEN","YELLOW","PINK","RED","WHITE"};
     public TextView numOfpark;
     public TextView phoneOfpark;
     public TextView userOfpark;
@@ -141,6 +146,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mMap.clear();
                     parkingStatus.setText("");numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
                     filterRed();
+                }else if(filtering[position].equals("WHITE")){
+                    mMap.clear();
+                    parkingStatus.setText("");numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    filterWhite();
                 }
             }
             @Override
@@ -151,6 +160,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //정보를 받아옴
         request();
+
+        //토큰
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                    }
+                });
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -161,6 +186,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 case R.id. refresh_txt:
                     finish();
                     startActivity(refresh_page);
+                    mMap.clear();
+                    //상세정보 초기화
+                    parkingStatus.setText("");numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    onMapReady(mMap);
                     break;
                 case R.id. settingButton:
                     temp = numOfpark.getText().toString();
@@ -170,6 +199,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 case R.id. refreshButton:
                     finish();
                     startActivity(refresh_page);
+                    mMap.clear();
+                    //상세정보 초기화
+                    parkingStatus.setText("");numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                    onMapReady(mMap);
                     break;
             }
         }
@@ -211,6 +244,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
                     markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                     break;
+                case "WHITE":
+                    bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.white_state);
+                    b = bitmapdraw.getBitmap();
+                    smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
             }
             //마커에 정보 표시
             markerOptions.position(position).title(markerItem.numOfpark);
@@ -225,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
 
         // 최대, 최소 줌 설정
-        mMap.setMinZoomPreference(14);
+        mMap.setMinZoomPreference(16);
         mMap.setMaxZoomPreference(20);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -276,6 +314,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+    public void filterWhite() {
+        for(MarkerItem markerItem : stateList){
+            if(markerItem.state.equals("WHITE")){
+                LatLng position = new LatLng(markerItem.getLat(), markerItem.getLon());
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                BitmapDrawable bitmapdraw; Bitmap b; Bitmap smallMarker;
+
+                bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.white_state);
+                b = bitmapdraw.getBitmap();
+                smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+                markerOptions.position(position).title(markerItem.numOfpark);
+                markerOptions.position(position).snippet(markerItem.phoneOfpark);
+                mMap.addMarker(markerOptions);
+            }
+        }
+    }
     public void filterYellow() {
         for(MarkerItem markerItem : stateList){
             if(markerItem.state.equals("YELLOW")){
@@ -297,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void filterPink() {
         for(MarkerItem markerItem : stateList){
-            if(markerItem.state.equals("GREEN")){
+            if(markerItem.state.equals("PINK")){
                 LatLng position = new LatLng(markerItem.getLat(), markerItem.getLon());
                 MarkerOptions markerOptions = new MarkerOptions();
                 BitmapDrawable bitmapdraw; Bitmap b; Bitmap smallMarker;
@@ -330,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
     public void InitializeLayout(){
         //toolBar를 통해 App Bar 생성
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -357,6 +415,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case R.id.menuitem_3:
                         Toast.makeText(getApplicationContext(), "SelectedItem 3", Toast.LENGTH_SHORT).show();
                         break;
+                    case R.id.logoutButton:
+
+                        break;
+
                 }
                 DrawerLayout drawer = findViewById(R.id.drawer_layoutGov);
                 drawer.closeDrawer(GravityCompat.START);
@@ -500,23 +562,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 if(responseCode == 200){
                                     Intent refresh_page = new Intent(MainActivity.this, MainActivity.class);
                                     Toast.makeText(MainActivity.this, "성공적으로 수정되었습니다.", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                    startActivity(refresh_page);
+                                    mMap.clear();
+                                    //상세정보 초기화
+                                    parkingStatus.setText("");numOfpark.setText(""); phoneOfpark.setText(""); userOfpark.setText("");
+                                    onMapReady(mMap);
                                 }
-
-                                /*//받은 json형식의 응답을 받아
-                                JSONObject jsonObject = new JSONObject(response.toString());
-
-                                //key값에 따라 value값을 쪼개 받아옵니다.
-                                String resultId = jsonObject.getString("approve_id");
-                                String resultPassword = jsonObject.getString("approve_pw");
-
-                                //만약 그 값이 같다면 로그인에 성공한 것입니다.
-                                if (resultId.equals("OK") & resultPassword.equals("OK")) {
-                                    //이 곳에 성공 시 화면이동을 하는 등의 코드를 입력하시면 됩니다.
-                                } else {
-                                    //로그인에 실패했을 경우 실행할 코드를 입력하시면 됩니다.
-                                }*/
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 Toast.makeText(MainActivity.this, "수정중 오류가 발생하였습니다.", Toast.LENGTH_SHORT).show();

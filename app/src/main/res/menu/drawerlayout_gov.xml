@@ -10,4 +10,7 @@
     <item
         android:id="@+id/menuitem_3"
         android:title="공지사항" />
+    <item
+        android:id="@+id/logoutButton"
+        android:title="로그아웃" />
 </menu>

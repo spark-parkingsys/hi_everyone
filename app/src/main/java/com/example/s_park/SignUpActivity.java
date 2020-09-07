@@ -5,10 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -136,20 +133,6 @@ public class SignUpActivity extends AppCompatActivity {
                                 int responseCode = con.getResponseCode();
 
                                 Log.d(TAG, "response code:" + responseCode);
-
-                                /*//받은 json형식의 응답을 받아
-                                JSONObject jsonObject = new JSONObject(response.toString());
-
-                                //key값에 따라 value값을 쪼개 받아옵니다.
-                                String resultId = jsonObject.getString("approve_id");
-                                String resultPassword = jsonObject.getString("approve_pw");
-
-                                //만약 그 값이 같다면 로그인에 성공한 것입니다.
-                                if (resultId.equals("OK") & resultPassword.equals("OK")) {
-                                    //이 곳에 성공 시 화면이동을 하는 등의 코드를 입력하시면 됩니다.
-                                } else {
-                                    //로그인에 실패했을 경우 실행할 코드를 입력하시면 됩니다.
-                                }*/
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
